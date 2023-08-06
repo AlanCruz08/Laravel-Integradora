@@ -9,67 +9,44 @@ use Illuminate\Support\Env;
 
 class RegistroController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    private $key;
+    private $username;
+    private $api;
+    private $client;
+
+    public function __construct()
+    {
+        $this->key = env('AIO_KEY');
+        $this->username = env('AIO_USERNAME');
+        $this->api = env('AIO_API');
+
+        $this->client = new Client([
+            'base_uri' => $this->api,
+            'headers' => [
+               'X-AIO-Key' => $this->key,
+            ],
+            'verify' => false,
+        ]);
+    }
+
     public function index()
     {
         $temp = $this->temperatura();
         $dist = $this->distancia();
         $hume = $this->humedad();
+        $pir = $this->pir();
+        $alcohol = $this->alcohol();
+        $humo = $this->humo();
         $result = [
             'temperatura' => $temp,
             'distancia' => $dist,
-            'humedad' => $hume
+            'humedad' => $hume,
+            'pir' => $pir,
+            'alcohol' => $alcohol,
+            'humo' => $humo
         ];
 
         return $result;
-
-        // $key = env('AIO_KEY');
-        // $username = env('AIO_USERNAME');
-        // $api = env('AIO_API');
-
-        // $client = new Client([
-        //     'base_uri' => $api,
-        //     'headers' => [
-        //         'X-AIO-Key' => $key,
-        //     ],
-        //     'verify' => false,
-        // ]);
-
-        // try {
-        //     $response = $client->get($username . '/feeds');
-
-        //     $data = $response->getBody()->getContents();
-        //     $feeds = json_decode($data, true);
-
-        //     //dd($feeds);
-
-        //     $filteredFeeds = [];
-        //     foreach ($feeds as $feed) {
-        //         $filteredFeeds[] = [
-        //             'username' => $feed['username'],
-        //             'name' => $feed['name'],
-        //             'last_value' => $feed['last_value'],
-        //         ];
-        //     }
-
-        //     //dd($filteredFeed);
-
-        //     return response()->json([
-        //         'msg' => 'Registros recuperados con exito!',
-        //         'data' => $feeds,
-        //         'status' => 200
-        //     ], $response->getStatusCode());
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'msg' => 'Error al recuperar registros!',
-        //         'error' => $e->getMessage(),
-        //         'status' => 500
-        //     ], 500);
-        // }
     }
 
     /**
@@ -137,23 +114,12 @@ class RegistroController extends Controller
     {
         //
     }
-
+    
     public function temperatura()
     {
-        $key = env('AIO_KEY');
-        $username = env('AIO_USERNAME');
-        $api = env('AIO_API');
-
-        $client = new Client([
-            'base_uri' => $api,
-            'headers' => [
-                'X-AIO-Key' => $key,
-            ],
-            'verify' => false,
-        ]);
-
         try {
-            $response = $client->get($username . '/feeds/temperature');
+
+            $response = $this->client->get($this->username . '/feeds/temperature');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
@@ -163,16 +129,15 @@ class RegistroController extends Controller
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'],
+                'last_value' => $feeds['last_value'] . '°C',
             ];
-
-            //dd($filteredFeed);
 
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $filteredFeed,
                 'status' => 200
             ], $response->getStatusCode());
+
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -183,20 +148,9 @@ class RegistroController extends Controller
     }
     public function distancia()
     {
-        $key = env('AIO_KEY');
-        $username = env('AIO_USERNAME');
-        $api = env('AIO_API');
-
-        $client = new Client([
-            'base_uri' => $api,
-            'headers' => [
-                'X-AIO-Key' => $key,
-            ],
-            'verify' => false,
-        ]);
-
         try {
-            $response = $client->get($username . '/feeds/distancia');
+
+            $response = $this->client->get($this->username . '/feeds/distancia');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
@@ -206,7 +160,7 @@ class RegistroController extends Controller
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'],
+                'last_value' => $feeds['last_value'] . 'cm',
             ];
 
             //dd($filteredFeed);
@@ -216,6 +170,7 @@ class RegistroController extends Controller
                 'data' => $filteredFeed,
                 'status' => 200
             ], $response->getStatusCode());
+
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -226,20 +181,9 @@ class RegistroController extends Controller
     }
     public function humedad()
     {
-        $key = env('AIO_KEY');
-        $username = env('AIO_USERNAME');
-        $api = env('AIO_API');
-
-        $client = new Client([
-            'base_uri' => $api,
-            'headers' => [
-                'X-AIO-Key' => $key,
-            ],
-            'verify' => false,
-        ]);
-
         try {
-            $response = $client->get($username . '/feeds/humedad');
+
+            $response = $this->client->get($this->username . '/feeds/humedad');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
@@ -259,6 +203,7 @@ class RegistroController extends Controller
                 'data' => $filteredFeed,
                 'status' => 200
             ], $response->getStatusCode());
+
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -267,5 +212,97 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+    public function pir()
+    {
+        try {
 
+            $response = $this->client->get($this->username . '/feeds/pir');
+
+            $data = $response->getBody()->getContents();
+            $feeds = json_decode($data, true);
+
+            //dd($feeds);
+
+            $filteredFeed = [
+                'username' => $feeds['username'],
+                'name' => $feeds['name'],
+                'last_value' => $feeds['last_value'],
+            ];
+
+            return response()->json([
+                'msg' => 'Registros recuperados con exito!',
+                'data' => $filteredFeed,
+                'status' => 200
+            ], $response->getStatusCode());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+    public function humo()
+    {
+        try {
+
+            $response = $this->client->get($this->username . '/feeds/humo');
+
+            $data = $response->getBody()->getContents();
+            $feeds = json_decode($data, true);
+
+            //dd($feeds);
+
+            $filteredFeed = [
+                'username' => $feeds['username'],
+                'name' => $feeds['name'],
+                'last_value' => $feeds['last_value'],
+            ];
+
+            return response()->json([
+                'msg' => 'Registros recuperados con exito!',
+                'data' => $filteredFeed,
+                'status' => 200
+            ], $response->getStatusCode());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+    public function alcohol()
+    {
+        try {
+
+            $response = $this->client->get($this->username . '/feeds/alcohol');
+
+            $data = $response->getBody()->getContents();
+            $feeds = json_decode($data, true);
+
+            //dd($feeds);
+
+            $filteredFeed = [
+                'username' => $feeds['username'],
+                'name' => $feeds['name'],
+                'last_value' => $feeds['last_value'],
+            ];
+
+            return response()->json([
+                'msg' => 'Registros recuperados con exito!',
+                'data' => $filteredFeed,
+                'status' => 200
+            ], $response->getStatusCode());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
 }
