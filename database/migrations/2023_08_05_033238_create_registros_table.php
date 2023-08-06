@@ -15,9 +15,12 @@ return new class extends Migration
     {
         Schema::create('registros', function (Blueprint $table) {
             $table->id();
-            $table->integer('valor');
+            $table->bigInteger('valor');
+            $table->string('unidades');
             $table->unsignedBigInteger('sensor_id');
             $table->foreign('sensor_id')->references('id')->on('sensors');
+            $table->unsignedBigInteger('dispositivo_id');
+            $table->foreign('dispositivo_id')->references('id')->on('dispositivos');
             $table->timestamps();
         });
     }

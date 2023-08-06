@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('dispositivos', function (Blueprint $table) {
             $table->id();
             $table->string('alias');
-            $table->string('descripcion');
+            $table->string('descripcion')->nullable();
             $table->unsignedBigInteger('codigo');
             $table->timestamps();
             $table->softDeletes();

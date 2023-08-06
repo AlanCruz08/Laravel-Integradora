@@ -10,13 +10,25 @@ class Dispositivo extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function user()
+    protected $fillable = ['alias', 'descripcion', 'codigo'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($dispositivo) {
+            // Generar un número aleatorio de 4 dígitos entre 1000 y 9999
+            $codigo = mt_rand(1000, 9999);
+            $dispositivo->codigo = $codigo;
+        });
+    }
+
+    public function users()
     {
         return $this->belongsToMany(User::class, 'users_dispositivos', 'dispositivo_id', 'user_id');
     }
-    
-    public function sensor()
+
+    public function registros()
     {
-        return $this->hasMany(Sensor::class, 'dispositivo_id');
+        return $this->hasMany(Registro::class, 'dispositivo_id');
     }
 }

@@ -10,9 +10,11 @@ class Sensor extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function dispositivo()
+    protected $fillable = ['nombre', 'descripcion', 'dispositivo_id'];
+
+    public function dispositivos()
     {
-        return $this->belongsTo(Dispositivo::class, 'dispositivo_id');
+        return $this->belongsToMany(Dispositivo::class, 'registros', 'sensor_id', 'dispositivo_id');
     }
     
     public function registro()

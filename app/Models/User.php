@@ -24,7 +24,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function dispositivo()
+    public function dispositivos()
     {
         return $this->belongsToMany(Dispositivo::class, 'users_dispositivos', 'user_id', 'dispositivo_id');
     }

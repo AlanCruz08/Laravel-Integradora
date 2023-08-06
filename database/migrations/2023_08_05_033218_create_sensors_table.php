@@ -17,8 +17,6 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('descripcion');
-            $table->unsignedBigInteger('dispositivo_id');
-            $table->foreign('dispositivo_id')->references('id')->on('dispositivos');
             $table->timestamps();
             $table->softDeletes();
         });

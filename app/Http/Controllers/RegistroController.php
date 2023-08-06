@@ -132,9 +132,26 @@ class RegistroController extends Controller
                 'last_value' => $feeds['last_value'] . '°C',
             ];
 
+            //dd($filteredFeed);
+
+            $valor = (int)$feeds['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => '°C',
+                'sensor_id' => 1,
+            ]);
+
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
