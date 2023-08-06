@@ -28,3 +28,6 @@ Route::get('/feeds/humo/{dispositivoID}', [RegistroController::class, 'humo'])
 
 Route::get('/feeds/{dispositivoID}', [RegistroController::class, 'index'])
     ->where('dispositivoID', '[0-9]+');
+
+
+include_once __DIR__ . '/Login/RLogin.php';
