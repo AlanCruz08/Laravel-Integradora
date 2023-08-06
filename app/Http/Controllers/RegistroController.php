@@ -213,14 +213,22 @@ class RegistroController extends Controller
             $valor = (int)$filteredFeed['last_value'];
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => '°C',
+                'unidades' => 'cm',
                 'sensor_id' => 2,
                 'dispositivo_id' => $dispositivo_id
             ]);
 
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
@@ -260,9 +268,25 @@ class RegistroController extends Controller
 
             //dd($filteredFeed);
 
+            $valor = (int)$filteredFeed['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => '%',
+                'sensor_id' => 3,
+                'dispositivo_id' => $dispositivo_id
+            ]);
+
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+            
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
@@ -300,9 +324,25 @@ class RegistroController extends Controller
                 'last_value' => $feeds['last_value'],
             ];
 
+            $valor = (int)$filteredFeed['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => 'ON/OFF',
+                'sensor_id' => 4,
+                'dispositivo_id' => $dispositivo_id
+            ]);
+
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
@@ -340,9 +380,25 @@ class RegistroController extends Controller
                 'last_value' => $feeds['last_value'],
             ];
 
+            $valor = (int)$filteredFeed['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => 'ppm',
+                'sensor_id' => 5,
+                'dispositivo_id' => $dispositivo_id
+            ]);
+
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
@@ -380,9 +436,25 @@ class RegistroController extends Controller
                 'last_value' => $feeds['last_value'],
             ];
 
+            $valor = (int)$filteredFeed['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => 'grados',
+                'sensor_id' => 6,
+                'dispositivo_id' => $dispositivo_id
+            ]);
+
+            if(!$registro) {
+                return response()->json([
+                    'msg' => 'Error al guardar registro!',
+                    'data' => $registro,
+                    'status' => 500
+                ], 500);
+            }
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
-                'data' => $filteredFeed,
+                'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
 
