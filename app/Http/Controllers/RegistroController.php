@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Registro;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Models\Dispositivo;
 use Illuminate\Support\Env;
 
 class RegistroController extends Controller
@@ -29,14 +30,22 @@ class RegistroController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(int $dispositivo_id = null)
     {
-        $temp = $this->temperatura();
-        $dist = $this->distancia();
-        $hume = $this->humedad();
-        $pir = $this->pir();
-        $alcohol = $this->alcohol();
-        $humo = $this->humo();
+        if($dispositivo_id == null)
+        {
+            return response()->json([
+                'msg' => 'Dispositivo no enviado!',
+                'status' => 404
+            ], 404);
+        }
+
+        $temp = $this->temperatura($dispositivo_id);
+        $dist = $this->distancia($dispositivo_id);
+        $hume = $this->humedad($dispositivo_id);
+        $pir = $this->pir($dispositivo_id);
+        $alcohol = $this->alcohol($dispositivo_id);
+        $humo = $this->humo($dispositivo_id);
         $result = [
             'temperatura' => $temp,
             'distancia' => $dist,
@@ -115,8 +124,17 @@ class RegistroController extends Controller
         //
     }
     
-    public function temperatura()
+    public function temperatura(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/temperature');
@@ -129,16 +147,17 @@ class RegistroController extends Controller
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'] . '°C',
+                'last_value' => $feeds['last_value'],
             ];
 
             //dd($filteredFeed);
 
-            $valor = (int)$feeds['last_value'];
+            $valor = (int)$filteredFeed['last_value'];
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => '°C',
                 'sensor_id' => 1,
+                'dispositivo_id' => $dispositivo_id
             ]);
 
             if(!$registro) {
@@ -163,8 +182,17 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function distancia()
+    public function distancia(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/distancia');
@@ -182,6 +210,14 @@ class RegistroController extends Controller
 
             //dd($filteredFeed);
 
+            $valor = (int)$filteredFeed['last_value'];
+            $registro = Registro::create([
+                'valor' => $valor,
+                'unidades' => '°C',
+                'sensor_id' => 2,
+                'dispositivo_id' => $dispositivo_id
+            ]);
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $filteredFeed,
@@ -196,8 +232,17 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function humedad()
+    public function humedad(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/humedad');
@@ -229,8 +274,17 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function pir()
+    public function pir(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/pir');
@@ -260,8 +314,17 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function humo()
+    public function humo(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/humo');
@@ -291,8 +354,17 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function alcohol()
+    public function alcohol(int $dispositivo_id)
     {
+        $dispositivo = Dispositivo::find($dispositivo_id);
+
+        if(!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'status' => 404
+            ], 404);
+        }
+
         try {
 
             $response = $this->client->get($this->username . '/feeds/alcohol');

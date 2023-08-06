@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Registro extends Model
 {
     use HasFactory;
-    protected $fillable = ['sensor_id', 'valor', 'unidades'];
+    protected $fillable = ['sensor_id', 'valor', 'unidades', 'dispositivo_id'];
 
     public function dispositivo()
     {

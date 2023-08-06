@@ -8,10 +8,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/feeds/temperatura', [RegistroController::class, 'temperatura']);
-Route::get('/feeds/distancia', [RegistroController::class, 'distancia']);
-Route::get('/feeds/humedad', [RegistroController::class, 'humedad']);
-Route::get('/feeds/pir', [RegistroController::class, 'pir']);
-Route::get('/feeds/alcohol', [RegistroController::class, 'alcohol']);
-Route::get('/feeds/humo', [RegistroController::class, 'humo']);
-Route::get('/feeds', [RegistroController::class, 'index']);
+Route::get('/feeds/temperatura/{dispositivoID}', [RegistroController::class, 'temperatura'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/distancia/{dispositivoID}', [RegistroController::class, 'distancia'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/humedad/{dispositivoID}', [RegistroController::class, 'humedad'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/pir/{dispositivoID}', [RegistroController::class, 'pir'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/alcohol/{dispositivoID}', [RegistroController::class, 'alcohol'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/humo/{dispositivoID}', [RegistroController::class, 'humo'])
+    ->where('dispositivoID', '[0-9]+');
+
+Route::get('/feeds/{dispositivoID}', [RegistroController::class, 'index'])
+    ->where('dispositivoID', '[0-9]+');
