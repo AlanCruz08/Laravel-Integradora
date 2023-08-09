@@ -6,6 +6,7 @@ use App\Models\Registro;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Dispositivo;
+use App\Models\User;
 use Illuminate\Support\Env;
 
 class RegistroController extends Controller
@@ -24,7 +25,7 @@ class RegistroController extends Controller
         $this->client = new Client([
             'base_uri' => $this->api,
             'headers' => [
-               'X-AIO-Key' => $this->key,
+                'X-AIO-Key' => $this->key,
             ],
             'verify' => false,
         ]);
@@ -32,8 +33,7 @@ class RegistroController extends Controller
 
     public function index(int $dispositivo_id = null)
     {
-        if($dispositivo_id == null)
-        {
+        if ($dispositivo_id == null) {
             return response()->json([
                 'msg' => 'Dispositivo no enviado!',
                 'status' => 404
@@ -123,12 +123,77 @@ class RegistroController extends Controller
     {
         //
     }
-    
+
+    public function userDispositivo(int $userID, int $dispositivoID, string $token)
+    {
+        $dispositivo = Dispositivo::find($dispositivoID);
+
+        if (!$dispositivo) {
+            return response()->json([
+                'msg' => 'Dispositivo no encontrado!',
+                'data' => $dispositivo,
+                'status' => 404
+            ], 404);
+        }
+
+        $user = User::find($userID);
+
+        if (!$user) {
+            return response()->json([
+                'msg' => 'Usuario no encontrado!',
+                'data' => $user,
+                'status' => 404
+            ], 404);
+        }
+
+        if ($dispositivo->user_id != $userID) {
+            return response()->json([
+                'msg' => 'Dispositivo no pertenece al usuario!',
+                'status' => 401
+            ], 401);
+        }
+
+        if ($dispositivo->token != $token) {
+            return response()->json([
+                'msg' => 'Token incorrecto!',
+                'status' => 401
+            ], 401);
+        }
+
+        return response()->json([
+            'msg' => 'Dispositivo encontrado!',
+            'data' => $dispositivo,
+            'status' => 200
+        ], 200);
+    }
+
+    public function ada()
+    {
+        try {
+            $response = $this->client->get($this->username . '/feeds');
+
+            $data = $response->getBody()->getContents();
+            $feeds = json_decode($data, true);
+
+            return response()->json([
+                'msg' => 'Registros recuperados con exito!',
+                'data' => $feeds,
+                'status' => 200
+            ], $response->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
     public function temperatura(int $dispositivo_id)
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -160,7 +225,7 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -173,7 +238,6 @@ class RegistroController extends Controller
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -186,7 +250,7 @@ class RegistroController extends Controller
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -218,7 +282,7 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -231,7 +295,6 @@ class RegistroController extends Controller
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -244,7 +307,7 @@ class RegistroController extends Controller
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -276,20 +339,19 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
                     'status' => 500
                 ], 500);
             }
-            
+
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -302,7 +364,7 @@ class RegistroController extends Controller
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -332,7 +394,7 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -345,7 +407,6 @@ class RegistroController extends Controller
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -358,7 +419,7 @@ class RegistroController extends Controller
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -388,7 +449,7 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -401,7 +462,6 @@ class RegistroController extends Controller
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -414,7 +474,7 @@ class RegistroController extends Controller
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
 
-        if(!$dispositivo) {
+        if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -444,7 +504,7 @@ class RegistroController extends Controller
                 'dispositivo_id' => $dispositivo_id
             ]);
 
-            if(!$registro) {
+            if (!$registro) {
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -457,7 +517,6 @@ class RegistroController extends Controller
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
-
         } catch (\Exception $e) {
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
@@ -465,5 +524,56 @@ class RegistroController extends Controller
                 'status' => 500
             ], 500);
         }
+    }
+    private function dispositivo()
+    {
+        try {
+
+            $response = $this->client->get($this->username . '/feeds/id');
+
+            $data = $response->getBody()->getContents();
+            $feeds = json_decode($data, true);
+
+            //dd($feeds);
+
+            $filteredFeed = [
+                'username' => $feeds['username'],
+                'name' => $feeds['name'],
+                'last_value' => $feeds['last_value'],
+            ];
+
+            $valor = (int)$filteredFeed['last_value'];
+            return $valor;
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    public function dataLoop()
+    {
+        while (true) {
+            $dispositivo_id = $this->dispositivo();
+            $temp = $this->temperatura($dispositivo_id);
+            $dist = $this->distancia($dispositivo_id);
+            $hume = $this->humedad($dispositivo_id);
+            $pir = $this->pir($dispositivo_id);
+            $alcohol = $this->alcohol($dispositivo_id);
+            $humo = $this->humo($dispositivo_id);
+
+            sleep(15);
+        }
+
+        // $result = [
+        //     'temperatura' => $temp,
+        //     'distancia' => $dist,
+        //     'humedad' => $hume,
+        //     'pir' => $pir,
+        //     'alcohol' => $alcohol,
+        //     'humo' => $humo
+        // ];
     }
 }
