@@ -58,72 +58,6 @@ class RegistroController extends Controller
         return $result;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Registro  $registro
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Registro $registro)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Registro  $registro
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Registro $registro)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Registro  $registro
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Registro $registro)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Registro  $registro
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Registro $registro)
-    {
-        //
-    }
-
     public function userDispositivo(int $userID, int $dispositivoID, string $token)
     {
         $dispositivo = Dispositivo::find($dispositivoID);
@@ -576,4 +510,181 @@ class RegistroController extends Controller
         //     'humo' => $humo
         // ];
     }
+
+    public function humedadAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/humidityvalue/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresHumedad = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorHumedad = $feed['value'];
+            $valoresHumedad[] = $valorHumedad;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresHumedad,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+public function temperaturaAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/tempvalue/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresTemperatura = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorTemperatura = $feed['value'];
+            $valoresTemperatura[] = $valorTemperatura;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresTemperatura,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+public function distanciaAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/distvalue/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresDistancia = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorDistancia = $feed['value'];
+            $valoresDistancia[] = $valorDistancia;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresDistancia,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+public function pirAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/pir/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresPir = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorPir = $feed['value'];
+            $valoresPir[] = $valorPir;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresPir,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+public function alcoholAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/alcohol/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresAlcohol = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorAlcohol = $feed['value'];
+            $valoresAlcohol[] = $valorAlcohol;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresAlcohol,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+public function humoAll()
+{
+    try {
+        $response = $this->client->get($this->username . '/feeds/tempvalue/data');
+        $data = $response->getBody()->getContents();
+        $feeds = json_decode($data, true);
+
+        // Crear un array para almacenar los valores de humedad
+        $valoresHumo = [];
+
+        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        foreach ($feeds as $feed) {
+            $valorHumo = $feed['value'];
+            $valoresHumo[] = $valorHumo;
+        }
+
+        return response()->json([
+            'msg' => 'Registros recuperados con exito!',
+            'data' => $valoresHumo,
+            'status' => 200
+        ], $response->getStatusCode());
+    } catch (\Exception $e) {
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+
+    
 }

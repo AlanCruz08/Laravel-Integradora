@@ -30,4 +30,14 @@ Route::/*middleware('auth:sanctum')
             ->where('dispositivoID', '[0-9]+');
 
         Route::get('/ada', [RegistroController::class, 'ada']);
+
+
+        Route::get('/humedad', [RegistroController::class, 'humedadAll']);
+        Route::get('/temperatura', [RegistroController::class, 'temperaturaAll']);
+        Route::get('/distancia', [RegistroController::class, 'distanciaAll']);
+        Route::get('/humo', [RegistroController::class, 'humoAll']);
+        Route::get('/pir', [RegistroController::class, 'pirAll']);
+        Route::get('/alcohol', [RegistroController::class, 'alcoholAll']);
+
+        
 });
