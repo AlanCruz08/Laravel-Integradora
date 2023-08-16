@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\DB;
+use App\Mail\VerifyMail;
+use Illuminate\Support\Facades\Mail;
 
 class loginController extends Controller
 {
@@ -144,7 +146,7 @@ class loginController extends Controller
             ->where('token', $token)
             ->first();
 
-        if(!$consu)
+        if (!$consu)
             response()->json([
                 'msg' => 'El token no es valido',
                 'data' => false,
@@ -159,25 +161,35 @@ class loginController extends Controller
     }
 
     public function getUserData(Request $request)
-{
-    // Obtener el usuario autenticado
-    $user = $request->user();
+    {
+        // Obtener el usuario autenticado
+        $user = $request->user();
 
-    // Verificar si el usuario existe
-    if (!$user) {
+        // Verificar si el usuario existe
+        if (!$user) {
+            return response()->json([
+                'msg' => 'Usuario no encontrado',
+                'data' => null,
+                'status' => 404
+            ], 404);
+        }
+
+        // Devolver los datos del usuario en formato JSON
         return response()->json([
-            'msg' => 'Usuario no encontrado',
-            'data' => null,
-            'status' => 404
-        ], 404);
+            'msg' => 'Datos del usuario',
+            'data' => $user,
+            'status' => 200
+        ], 200);
     }
 
-    // Devolver los datos del usuario en formato JSON
-    return response()->json([
-        'msg' => 'Datos del usuario',
-        'data' => $user,
-        'status' => 200
-    ], 200);
-}
-
+    public function enviarCorreo(int $userID)
+    {
+        //$usuario = User::find($userID);
+        Mail::to('guillermo_escobar128@hotmail.com')->send(new VerifyMail());
+        return response()->json([
+            'msg' => 'Correo enviado',
+            'data' => null,
+            'status' => 200
+        ], 200);
+    }
 }

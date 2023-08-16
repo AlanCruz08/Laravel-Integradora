@@ -8,5 +8,8 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [LoginController::class, 'register']);
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/validate', [LoginController::class, 'validar']);
+Route::get('/correo/{UserID}', [LoginController::class, 'enviarCorreo'])
+->where('UserID', '[0-9]+');
+
 
 Route::get('/user', [LoginController::class,'getUserData']);
