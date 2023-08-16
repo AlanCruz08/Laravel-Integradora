@@ -157,4 +157,27 @@ class loginController extends Controller
             'status' => 200
         ], 200);
     }
+
+    public function getUserData(Request $request)
+{
+    // Obtener el usuario autenticado
+    $user = $request->user();
+
+    // Verificar si el usuario existe
+    if (!$user) {
+        return response()->json([
+            'msg' => 'Usuario no encontrado',
+            'data' => null,
+            'status' => 404
+        ], 404);
+    }
+
+    // Devolver los datos del usuario en formato JSON
+    return response()->json([
+        'msg' => 'Datos del usuario',
+        'data' => $user,
+        'status' => 200
+    ], 200);
+}
+
 }
