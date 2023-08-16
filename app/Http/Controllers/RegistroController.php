@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Dispositivo;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\DataJob;
 use Illuminate\Support\Env;
 
 class RegistroController extends Controller
@@ -33,6 +35,21 @@ class RegistroController extends Controller
 
     public function index(int $dispositivo_id = null)
     {
+        try {
+            DataJob::dispatch();
+
+            return response()->json([
+                'message' => 'Cola en proceso...'
+            ], 200);
+        } catch (\Exception $e) {
+            // Registra la excepción en el archivo de registro
+            Log::error('Error al ejecutar la cola: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Error al ejecutar la cola',
+                'error' => $e->getMessage()
+            ], 500);
+        }
         if ($dispositivo_id == null) {
             return response()->json([
                 'msg' => 'Dispositivo no enviado!',
