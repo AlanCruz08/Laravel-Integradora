@@ -524,7 +524,11 @@ class RegistroController extends Controller
         // Recorrer el array de objetos y extraer el valor de humedad de cada uno
         foreach ($feeds as $feed) {
             $valorHumedad = $feed['value'];
-            $valoresHumedad[] = $valorHumedad;
+            $fechaHumedad = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresHumedad[] = [
+                'valor' => $valorHumedad,
+                'fecha' => $fechaHumedad
+            ];
         }
 
         return response()->json([
@@ -553,7 +557,11 @@ public function temperaturaAll()
         // Recorrer el array de objetos y extraer el valor de humedad de cada uno
         foreach ($feeds as $feed) {
             $valorTemperatura = $feed['value'];
-            $valoresTemperatura[] = $valorTemperatura;
+            $fechaTemperatura = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresTemperatura[] = [
+                'valor' => $valorTemperatura,
+                'fecha' => $fechaTemperatura
+            ];
         }
 
         return response()->json([
@@ -582,7 +590,11 @@ public function distanciaAll()
         // Recorrer el array de objetos y extraer el valor de humedad de cada uno
         foreach ($feeds as $feed) {
             $valorDistancia = $feed['value'];
-            $valoresDistancia[] = $valorDistancia;
+            $fechaDistancia = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresDistancia[] = [
+                'valor' => $valorDistancia,
+                'fecha' => $fechaDistancia
+            ];
         }
 
         return response()->json([
@@ -611,7 +623,11 @@ public function pirAll()
         // Recorrer el array de objetos y extraer el valor de humedad de cada uno
         foreach ($feeds as $feed) {
             $valorPir = $feed['value'];
-            $valoresPir[] = $valorPir;
+            $fechaAlcohol = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresPir[] = [
+                'valor' => $valorPir,
+                'fecha' => $fechaAlcohol
+            ];
         }
 
         return response()->json([
@@ -634,17 +650,21 @@ public function alcoholAll()
         $data = $response->getBody()->getContents();
         $feeds = json_decode($data, true);
 
-        // Crear un array para almacenar los valores de humedad
+        // Crear un array para almacenar los valores de alcohol con sus fechas
         $valoresAlcohol = [];
 
-        // Recorrer el array de objetos y extraer el valor de humedad de cada uno
+        // Recorrer el array de objetos y extraer el valor de alcohol y su fecha de cada uno
         foreach ($feeds as $feed) {
             $valorAlcohol = $feed['value'];
-            $valoresAlcohol[] = $valorAlcohol;
+            $fechaAlcohol = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresAlcohol[] = [
+                'valor' => $valorAlcohol,
+                'fecha' => $fechaAlcohol
+            ];
         }
 
         return response()->json([
-            'msg' => 'Registros recuperados con exito!',
+            'msg' => 'Registros recuperados con éxito!',
             'data' => $valoresAlcohol,
             'status' => 200
         ], $response->getStatusCode());
@@ -659,7 +679,7 @@ public function alcoholAll()
 public function humoAll()
 {
     try {
-        $response = $this->client->get($this->username . '/feeds/tempvalue/data');
+        $response = $this->client->get($this->username . '/feeds/humo/data');
         $data = $response->getBody()->getContents();
         $feeds = json_decode($data, true);
 
@@ -669,7 +689,11 @@ public function humoAll()
         // Recorrer el array de objetos y extraer el valor de humedad de cada uno
         foreach ($feeds as $feed) {
             $valorHumo = $feed['value'];
-            $valoresHumo[] = $valorHumo;
+            $fechaHumo = date('d/m/Y H:i:s', strtotime($feed['created_at'])); // Formatear la fecha con año completo
+            $valoresHumo[] = [
+                'valor' => $valorHumo,
+                'fecha' => $fechaHumo
+            ];
         }
 
         return response()->json([
