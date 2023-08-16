@@ -48,8 +48,8 @@ class RegisterCommand extends Command
         $this->distancia($dispositivo_id);
         $this->humedad($dispositivo_id);
         $this->pir($dispositivo_id);
-        $this->alcohol($dispositivo_id);
         $this->humo($dispositivo_id);
+        $this->alcohol($dispositivo_id);
     }
 
     public function temperatura(int $dispositivo_id)

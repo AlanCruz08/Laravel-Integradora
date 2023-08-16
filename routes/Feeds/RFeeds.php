@@ -8,8 +8,7 @@ Route::/*middleware('auth:sanctum')
     ->*/prefix('feeds')
     ->group(function () {
 
-        Route::get('/{dispositivoID}', [RegistroController::class, 'index'])
-            ->where('dispositivoID', '[0-9]+');
+        Route::get('', [RegistroController::class, 'index']);
 
         Route::get('/temperatura/{dispositivoID}', [RegistroController::class, 'temperatura'])
             ->where('dispositivoID', '[0-9]+');
