@@ -12,4 +12,5 @@ Route::get('/correo/{UserID}', [LoginController::class, 'enviarCorreo'])
 ->where('UserID', '[0-9]+');
 
 
-Route::get('/user', [LoginController::class,'getUserData']);
+
+//Route::get('/user', [LoginController::class,'getUserData']);
