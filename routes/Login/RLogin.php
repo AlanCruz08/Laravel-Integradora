@@ -12,4 +12,4 @@ Route::prefix('user')->group(function () {
 });
 
 
-Route::get('/user', [LoginController::class,'getUserData']);
+//Route::get('/user', [LoginController::class,'getUserData']);
