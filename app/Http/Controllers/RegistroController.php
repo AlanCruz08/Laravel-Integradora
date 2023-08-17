@@ -193,7 +193,7 @@ class RegistroController extends Controller
 
         try {
 
-            $response = $this->client->get($this->username . '/feeds/distvalue');
+            $response = $this->client->get($this->username . '/feeds/distancia');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
@@ -250,7 +250,7 @@ class RegistroController extends Controller
 
         try {
 
-            $response = $this->client->get($this->username . '/feeds/humidityvalue');
+            $response = $this->client->get($this->username . '/feeds/humedad');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
