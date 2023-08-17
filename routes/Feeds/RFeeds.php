@@ -4,8 +4,8 @@ use App\Http\Controllers\RegistroController;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
-Route::/*middleware('auth:sanctum')
-    ->*/prefix('feeds')
+Route::middleware('auth:sanctum')
+    ->prefix('feeds')
     ->group(function () {
 
         Route::get('', [RegistroController::class, 'index']);

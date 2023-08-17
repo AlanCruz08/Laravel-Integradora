@@ -551,6 +551,7 @@ public function getRegistrosDistanciaAll()
     }
 }
 public function getRegistrosTemperaturaAll(){
+    
 
     try {
         $sensorId = 1; // Cambiar este valor según el sensor que desees consultar
