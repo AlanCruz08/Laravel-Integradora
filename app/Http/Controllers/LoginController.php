@@ -94,7 +94,7 @@ class loginController extends Controller
             ], 422);
         
         $email = $request->email;
-        $verificado = $this->enviarCorreo($email);
+       // $verificado = $this->enviarCorreo($email);
 
         $user = User::create([
             'name' => $request->name,
