@@ -710,5 +710,45 @@ public function humoAll()
     }
 }
 
+public function getRegistrosDistanciaAll()
+{
+    try {
+        $sensorId = 2; // Cambiar este valor según el sensor que desees consultar
+
+        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+            ->where('sensor_id', $sensorId)
+            ->get()
+            ->map(function ($registro) {
+                // Transforma cada registro en un formato deseado
+                return [
+                    'id' => $registro->id,
+                    'valor' => $registro->valor,
+                    'unidades' => $registro->unidades,
+                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                ];
+            });
+
+        // Devuelve una respuesta JSON con los registros formateados
+        return response()->json([
+            'msg' => 'Registros recuperados con éxito!',
+            'data' => $registros,
+            'status' => 200
+        ]);
+    } catch (\Exception $e) {
+        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+        return response()->json([
+            'msg' => 'Error al recuperar registros!',
+            'error' => $e->getMessage(),
+            'status' => 500
+        ], 500);
+    }
+}
+
+
+
+
     
 }
+
