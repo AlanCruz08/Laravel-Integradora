@@ -84,6 +84,9 @@ class loginController extends Controller
                 'data' => $user,
                 'status' => '422'
             ], 422);
+        
+        $email = $request->email;
+        $verificado = $this->enviarCorreo($email);
 
         $user = User::create([
             'name' => $request->name,
@@ -182,14 +185,34 @@ class loginController extends Controller
         ], 200);
     }
 
-    public function enviarCorreo(int $userID)
+    public function enviarCorreo(Request $request)
     {
-        //$usuario = User::find($userID);
-        Mail::to('guillermo_escobar128@hotmail.com')->send(new VerifyMail());
+        $validacion = Validator::make($request->all(), $this->reglasRegister);
+
+        if ($validacion->fails())
+            return response()->json([
+                'msg' => 'Error en las validaciones',
+                'data' => $validacion->errors(),
+                'status' => '422'
+            ], 422);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user)
+            return response()->json([
+                'msg' => 'Usuario ya existente',
+                'data' => $user,
+                'status' => '422'
+            ], 422);
+        
+        $email = $request->email;
+
+        Mail::to($email)->send(new VerifyMail());
         return response()->json([
             'msg' => 'Correo enviado',
             'data' => null,
             'status' => 200
         ], 200);
+        
     }
 }
