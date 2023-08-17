@@ -178,11 +178,7 @@ class loginController extends Controller
     {
         $emailExist = DB::table('verify_email')->where('email', $email)->first();
         if ($emailExist)
-            return response()->json([
-                'msg' => 'Correo ya enviado',
-                'data' => $email,
-                'status' => 200
-            ], 200);
+            DB::table('verify_email')->where('email', $email)->delete();
 
         $number = rand(1000, 9999);
 
