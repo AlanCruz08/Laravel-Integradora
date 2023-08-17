@@ -768,4 +768,3 @@ public function getRegistrosPorRangoDeFechas(Request $request)
 
     
 }
-

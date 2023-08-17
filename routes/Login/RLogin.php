@@ -8,5 +8,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [LoginController::class, 'register']);
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/validate', [LoginController::class, 'validar']);
+Route::post('/correo', [LoginController::class, 'enviarCorreo']);
+Route::post('/verificar', [LoginController::class, 'verificacion']);
 
-Route::get('/user', [LoginController::class,'getUserData']);
+//Route::get('/user', [LoginController::class,'getUserData']);

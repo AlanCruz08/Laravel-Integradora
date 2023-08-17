@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\DB;
+use App\Mail\VerifyMail;
+use Illuminate\Support\Facades\Mail;
 
 class loginController extends Controller
 {
@@ -24,6 +26,15 @@ class loginController extends Controller
 
     protected $reglasValidate = [
         'id'        => 'required | numeric'
+    ];
+
+    protected $reglasCorreo = [
+        'email'        => 'required | email'
+    ];
+
+    protected $reglasVerificacion = [
+        'codigo'        => 'required | numeric',
+        'email'        => 'required | email'
     ];
 
     public function login(Request $request)
@@ -64,7 +75,6 @@ class loginController extends Controller
 
     public function register(Request $request)
     {
-
         $validacion = Validator::make($request->all(), $this->reglasRegister);
 
         if ($validacion->fails())
@@ -82,6 +92,9 @@ class loginController extends Controller
                 'data' => $user,
                 'status' => '422'
             ], 422);
+        
+        $email = $request->email;
+        $verificado = $this->enviarCorreo($email);
 
         $user = User::create([
             'name' => $request->name,
@@ -110,15 +123,8 @@ class loginController extends Controller
 
     public function validar(Request $request)
     {
-        // $validacion = Validator::make($request->all(), $this->reglasValidate);
-        // if ($validacion->fails())
-        //     return response()->json([
-        //         'msg' => 'Error en las validaciones',
-        //         'data' => $validacion->errors(),
-        //         'status' => '422'
-        //     ], 422);
-
         $accessToken = $request->bearerToken();
+
 
         if (!$accessToken) {
             return response()->json([
@@ -127,57 +133,144 @@ class loginController extends Controller
                 'status' => 404
             ], 404);
         }
-
-        $id = $request->id;
+        
         $token = PersonalAccessToken::findToken($accessToken);
+        $user = $token->tokenable;
+         $id = $user->id;
 
         if (!$token || $token->revoked) {
             return response()->json([
-                'msg' => 'token no encontrado o revocado',
-                'data' => false,
+                'msg' => 'Token no encontrado o revocado',
+                'data' => [false],
                 'status' => 401
             ], 401);
         }
+    
+        // Obtener el token almacenado en el Local Storage del cliente
+        $token_local = $request->bearerToken();
+        $tokens_base_datos = $user-> tokens;
+       // return response()->json(['tokens' => $tokens_base_datos]);
 
-        $consu = DB::table('personal_access_tokens')
-            ->where('tokenable_id', $id)
-            ->where('token', $token)
-            ->first();
-
-        if(!$consu)
-            response()->json([
-                'msg' => 'El token no es valido',
-                'data' => false,
-                'status' => 422
-            ], 422);
-
+       foreach ($tokens_base_datos as $token) {
+        if($token->token == $token_local)
+        {
+            return response()->json([
+                'msg'=>'El token pertenece al usuario'
+            ], 200);
+        }
+    }
+    
         return response()->json([
-            'msg' => 'Token valido',
+            'msg' => 'Token válido',
             'data' => true,
             'status' => 200
         ], 200);
     }
+    
 
     public function getUserData(Request $request)
-{
-    // Obtener el usuario autenticado
-    $user = $request->user();
+    {
+        // Obtener el usuario autenticado
+        $user = $request->user();
 
-    // Verificar si el usuario existe
-    if (!$user) {
+        // Verificar si el usuario existe
+        if (!$user) {
+            return response()->json([
+                'msg' => 'Usuario no encontrado',
+                'data' => null,
+                'status' => 404
+            ], 404);
+        }
+
+        // Devolver los datos del usuario en formato JSON
         return response()->json([
-            'msg' => 'Usuario no encontrado',
-            'data' => null,
-            'status' => 404
-        ], 404);
+            'msg' => 'Datos del usuario',
+            'data' => $user,
+            'status' => 200
+        ], 200);
     }
 
-    // Devolver los datos del usuario en formato JSON
-    return response()->json([
-        'msg' => 'Datos del usuario',
-        'data' => $user,
-        'status' => 200
-    ], 200);
-}
+    public function enviarCorreo(Request $request)
+    {
+        $validacion = Validator::make($request->all(), $this->reglasCorreo);
 
+        if ($validacion->fails())
+            return response()->json([
+                'msg' => 'Error en las validaciones',
+                'data' => $validacion->errors(),
+                'status' => '422'
+            ], 422);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user)
+            return response()->json([
+                'msg' => 'Usuario ya existente',
+                'data' => $user,
+                'status' => '422'
+            ], 422);
+        
+        $email = $request->email;
+        $emailExist = DB::table('verify_email')->where('email', $email)->first();
+        if($emailExist)
+            return response()->json([
+                'msg' => 'Correo ya enviado',
+                'data' => $email,
+                'status' => 200
+            ], 200);
+        
+        $number = rand(1000, 9999);
+
+        DB::table('verify_email')->insert([
+            'codigo' => $number,
+            'email' => $email
+        ]);
+
+        Mail::to($email)->send(new VerifyMail($number));
+
+        return response()->json([
+            'msg' => 'Correo enviado',
+            'data' => null,
+            'status' => 200
+        ], 200);
+    }
+
+    public function verificacion (Request $request)
+    {
+        $validacion = Validator::make($request->all(), $this->reglasVerificacion);
+
+        if ($validacion->fails())
+            return response()->json([
+                'msg' => 'Error en las validaciones',
+                'data' => $validacion->errors(),
+                'status' => '422'
+            ], 422);
+
+        $codigo = $request->codigo;
+
+        $email = $request->email;
+        $relation = DB::table('verify_email')->where('email', $email)->where('codigo', $codigo)->first();
+
+        if(!$relation)
+            return response()->json([
+                'msg' => 'Codigo no valido',
+                'data' => null,
+                'status' => 404
+            ], 404);
+
+        $verify = DB::table('verify_email')->where('email', $email)->where('codigo', $codigo)->update(['verificado' => true]);
+        
+        if(!$verify)
+            return response()->json([
+                'msg' => 'Error al verificar',
+                'data' => null,
+                'status' => 404
+            ], 404);
+
+        return response()->json([
+            'msg' => 'Codigo valido',
+            'data' => null,
+            'status' => 200
+        ], 200);
+    }
 }
