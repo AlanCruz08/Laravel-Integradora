@@ -136,7 +136,7 @@ class RegistroController extends Controller
 
         try {
 
-            $response = $this->client->get($this->username . '/feeds/tempvalue');
+            $response = $this->client->get($this->username . '/feeds/temperature');
 
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
