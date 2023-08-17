@@ -74,7 +74,7 @@ class loginController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-            'email' => $request->email,
+            
         ], 200);
     }
 
