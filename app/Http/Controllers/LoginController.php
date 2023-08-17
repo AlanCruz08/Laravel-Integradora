@@ -28,6 +28,15 @@ class loginController extends Controller
         'id'        => 'required | numeric'
     ];
 
+    protected $reglasCorreo = [
+        'email'        => 'required | email'
+    ];
+
+    protected $reglasVerificacion = [
+        'codigo'        => 'required | numeric',
+        'email'        => 'required | email'
+    ];
+
     public function login(Request $request)
     {
 
@@ -66,7 +75,6 @@ class loginController extends Controller
 
     public function register(Request $request)
     {
-
         $validacion = Validator::make($request->all(), $this->reglasRegister);
 
         if ($validacion->fails())
@@ -187,7 +195,7 @@ class loginController extends Controller
 
     public function enviarCorreo(Request $request)
     {
-        $validacion = Validator::make($request->all(), $this->reglasRegister);
+        $validacion = Validator::make($request->all(), $this->reglasCorreo);
 
         if ($validacion->fails())
             return response()->json([
@@ -206,13 +214,66 @@ class loginController extends Controller
             ], 422);
         
         $email = $request->email;
+        $emailExist = DB::table('verify_email')->where('email', $email)->first();
+        if($emailExist)
+            return response()->json([
+                'msg' => 'Correo ya enviado',
+                'data' => $email,
+                'status' => 200
+            ], 200);
+        
+        $number = rand(1000, 9999);
 
-        Mail::to($email)->send(new VerifyMail());
+        DB::table('verify_email')->insert([
+            'codigo' => $number,
+            'email' => $email
+        ]);
+
+        Mail::to($email)->send(new VerifyMail($number));
+
         return response()->json([
             'msg' => 'Correo enviado',
             'data' => null,
             'status' => 200
         ], 200);
+    }
+
+    public function verificacion (Request $request)
+    {
+        $validacion = Validator::make($request->all(), $this->reglasVerificacion);
+
+        if ($validacion->fails())
+            return response()->json([
+                'msg' => 'Error en las validaciones',
+                'data' => $validacion->errors(),
+                'status' => '422'
+            ], 422);
+
+        $codigo = $request->codigo;
+
+        $email = $request->email;
+        $relation = DB::table('verify_email')->where('email', $email)->where('codigo', $codigo)->first();
+
+        if(!$relation)
+            return response()->json([
+                'msg' => 'Codigo no valido',
+                'data' => null,
+                'status' => 404
+            ], 404);
+
+        $verify = DB::table('verify_email')->where('email', $email)->where('codigo', $codigo)->update(['verificado' => true]);
         
+        if(!$verify)
+            return response()->json([
+                'msg' => 'Error al verificar',
+                'data' => null,
+                'status' => 404
+            ], 404);
+
+        return response()->json([
+            'msg' => 'Codigo valido',
+            'data' => null,
+            'status' => 200
+        ], 200);
     }
 }

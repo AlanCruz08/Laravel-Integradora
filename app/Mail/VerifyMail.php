@@ -13,15 +13,16 @@ use Illuminate\Mail\Mailables\Address;
 class VerifyMail extends Mailable
 {
     use Queueable, SerializesModels;
+    
+    public $number;
 
-    public function __construct()
+    public function __construct(int $number)
     {
-        //
+        $this->number = $number;
     }
 
     public function build()
     {
-        $number = rand(1000, 9999);
-        return $this->view('email', ['number' => $number]);
+        return $this->view('email', ['number' => $this->number]);
     }
 }
