@@ -123,15 +123,8 @@ class loginController extends Controller
 
     public function validar(Request $request)
     {
-        // $validacion = Validator::make($request->all(), $this->reglasValidate);
-        // if ($validacion->fails())
-        //     return response()->json([
-        //         'msg' => 'Error en las validaciones',
-        //         'data' => $validacion->errors(),
-        //         'status' => '422'
-        //     ], 422);
-
         $accessToken = $request->bearerToken();
+
 
         if (!$accessToken) {
             return response()->json([
@@ -140,36 +133,40 @@ class loginController extends Controller
                 'status' => 404
             ], 404);
         }
-
-        $id = $request->id;
+        
         $token = PersonalAccessToken::findToken($accessToken);
+        $user = $token->tokenable;
+         $id = $user->id;
 
         if (!$token || $token->revoked) {
             return response()->json([
-                'msg' => 'token no encontrado o revocado',
-                'data' => false,
+                'msg' => 'Token no encontrado o revocado',
+                'data' => [false],
                 'status' => 401
             ], 401);
         }
+    
+        // Obtener el token almacenado en el Local Storage del cliente
+        $token_local = $request->bearerToken();
+        $tokens_base_datos = $user-> tokens;
+       // return response()->json(['tokens' => $tokens_base_datos]);
 
-        $consu = DB::table('personal_access_tokens')
-            ->where('tokenable_id', $id)
-            ->where('token', $token)
-            ->first();
-
-        if (!$consu)
-            response()->json([
-                'msg' => 'El token no es valido',
-                'data' => false,
-                'status' => 422
-            ], 422);
-
+       foreach ($tokens_base_datos as $token) {
+        if($token->token == $token_local)
+        {
+            return response()->json([
+                'msg'=>'El token pertenece al usuario'
+            ], 200);
+        }
+    }
+    
         return response()->json([
-            'msg' => 'Token valido',
+            'msg' => 'Token válido',
             'data' => true,
             'status' => 200
         ], 200);
     }
+    
 
     public function getUserData(Request $request)
     {
