@@ -40,5 +40,17 @@ Route::/*middleware('auth:sanctum')
         Route::get('/alcohol', [RegistroController::class, 'alcoholAll']); */
 
         //query
-        Route::get('/distancias', [RegistroController::class, 'getRegistrosDistanciaAll']);
+        Route::get('/distancia', [RegistroController::class, 'getRegistrosDistanciaAll']);
+        Route::get('/temperatura', [RegistroController::class, 'getRegistrosTemperaturaAll']);
+        Route::get('/humedad', [RegistroController::class, 'getRegistrosHumedadAll']);
+        Route::get('/pir', [RegistroController::class, 'getRegistrosPirAll']);
+        Route::get('/humo', [RegistroController::class, 'getRegistrosHumoAll']);
+        Route::get('/alcohol', [RegistroController::class, 'getRegistrosAlcoholAll']);
+
+
+        Route::get('/filtro', [RegistroController::class,'getRegistrosPorRangoDeFechas']);
+
+       //Route::get('/filtro/{sensor_id}/{fecha_inicial}/{fecha_final}', [RegistroController::class, 'getRegistrosPorRangoDeFechas']);
+
+
     });
