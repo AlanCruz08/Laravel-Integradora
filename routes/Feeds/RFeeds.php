@@ -30,26 +30,12 @@ Route::middleware('auth:sanctum')
 
         Route::get('/ada', [RegistroController::class, 'ada']);
 
-
-        /* Route::get('/humedad', [RegistroController::class, 'humedadAll']);
-        Route::get('/temperatura', [RegistroController::class, 'temperaturaAll']);
-        Route::get('/distancia', [RegistroController::class, 'distanciaAll']);
-        Route::get('/humo', [RegistroController::class, 'humoAll']);
-        Route::get('/pir', [RegistroController::class, 'pirAll']);
-        Route::get('/alcohol', [RegistroController::class, 'alcoholAll']); */
-
-        //query
-        Route::get('/distancia', [RegistroController::class, 'getRegistrosDistanciaAll']);
-        Route::get('/temperatura', [RegistroController::class, 'getRegistrosTemperaturaAll']);
-        Route::get('/humedad', [RegistroController::class, 'getRegistrosHumedadAll']);
-        Route::get('/pir', [RegistroController::class, 'getRegistrosPirAll']);
-        Route::get('/humo', [RegistroController::class, 'getRegistrosHumoAll']);
-        Route::get('/alcohol', [RegistroController::class, 'getRegistrosAlcoholAll']);
-
+        Route::get('/distanciaAll', [RegistroController::class, 'getRegistrosDistanciaAll']);
+        Route::get('/temperaturaAll', [RegistroController::class, 'getRegistrosTemperaturaAll']);
+        Route::get('/humedadAll', [RegistroController::class, 'getRegistrosHumedadAll']);
+        Route::get('/pirAll', [RegistroController::class, 'getRegistrosPirAll']);
+        Route::get('/humoAll', [RegistroController::class, 'getRegistrosHumoAll']);
+        Route::get('/alcoholAll', [RegistroController::class, 'getRegistrosAlcoholAll']);
 
         Route::get('/filtro', [RegistroController::class,'getRegistrosPorRangoDeFechas']);
-
-       //Route::get('/filtro/{sensor_id}/{fecha_inicial}/{fecha_final}', [RegistroController::class, 'getRegistrosPorRangoDeFechas']);
-
-
     });

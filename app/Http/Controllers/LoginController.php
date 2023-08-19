@@ -42,7 +42,6 @@ class loginController extends Controller
 
     public function login(Request $request)
     {
-
         $validacion = Validator::make($request->all(), $this->reglasLogin);
 
         if ($validacion->fails())
