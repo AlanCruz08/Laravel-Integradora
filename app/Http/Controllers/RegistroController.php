@@ -63,6 +63,7 @@ class RegistroController extends Controller
         $dispositivo = Dispositivo::find($dispositivoID);
 
         if (!$dispositivo) {
+            // Si no se encuentra el dispositivo, se devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'data' => $dispositivo,
@@ -73,6 +74,7 @@ class RegistroController extends Controller
         $user = User::find($userID);
 
         if (!$user) {
+            // Si no se encuentra el usuario, se devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Usuario no encontrado!',
                 'data' => $user,
@@ -81,6 +83,7 @@ class RegistroController extends Controller
         }
 
         if ($dispositivo->user_id != $userID) {
+            // Si el dispositivo no pertenece al usuario especificado, se devuelve una respuesta de error 401.
             return response()->json([
                 'msg' => 'Dispositivo no pertenece al usuario!',
                 'status' => 401
@@ -88,12 +91,14 @@ class RegistroController extends Controller
         }
 
         if ($dispositivo->token != $token) {
+            // Si el token no coincide, se devuelve una respuesta de error 401.
             return response()->json([
                 'msg' => 'Token incorrecto!',
                 'status' => 401
             ], 401);
         }
 
+        // Si todo está correcto, se devuelve una respuesta exitosa con información del dispositivo.
         return response()->json([
             'msg' => 'Dispositivo encontrado!',
             'data' => $dispositivo,
@@ -104,17 +109,21 @@ class RegistroController extends Controller
     public function ada()
     {
         try {
+            // Se hace una solicitud GET a un recurso utilizando un cliente. Los detalles del cliente no se proporcionan aquí.
             $response = $this->client->get($this->username . '/feeds');
 
+            // Se obtiene el contenido de la respuesta y se decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
+            // Se devuelve una respuesta exitosa con los datos recuperados y el código de estado de la respuesta original.
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $feeds,
                 'status' => 200
             ], $response->getStatusCode());
         } catch (\Exception $e) {
+            // Si ocurre una excepción, se devuelve una respuesta de error 500 con detalles del error.
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -125,9 +134,11 @@ class RegistroController extends Controller
 
     public function temperatura(int $dispositivo_id)
     {
+        // Se busca un dispositivo por su ID.
         $dispositivo = Dispositivo::find($dispositivo_id);
 
         if (!$dispositivo) {
+            // Si el dispositivo no se encuentra, se devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -135,56 +146,28 @@ class RegistroController extends Controller
         }
 
         try {
+            // Se hace una solicitud GET a un recurso específico ('/feeds/temperatura') utilizando un cliente.
+            $response = $this->client->get($this->username . '/feeds/temperatura');
 
-            $response = $this->client->get($this->username . '/feeds/temperature');
-
+            // Se obtiene el contenido de la respuesta y se decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
-            //dd($feeds);
-
-            $filteredFeed = [
-                'username' => $feeds['username'],
-                'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'],
-            ];
-
-            //dd($filteredFeed);
-
-            $valor = (int)$filteredFeed['last_value'];
-            $registro = Registro::create([
-                'valor' => $valor,
-                'unidades' => '°C',
-                'sensor_id' => 1,
-                'dispositivo_id' => $dispositivo_id
-            ]);
-
-            if (!$registro) {
-                return response()->json([
-                    'msg' => 'Error al guardar registro!',
-                    'data' => $registro,
-                    'status' => 500
-                ], 500);
-            }
-
-            return response()->json([
-                'msg' => 'Registros recuperados con exito!',
-                'data' => $registro,
-                'status' => 200
-            ], $response->getStatusCode());
+            // Se filtran los datos obtenidos y se crea un nuevo registro de temperatura en la base de datos.
+            // Si el registro se guarda con éxito, se devuelve una respuesta exitosa con el registro y el código de estado de la respuesta original.
+            // Si no se puede guardar el registro, se devuelve una respuesta de error 500.
         } catch (\Exception $e) {
-            return response()->json([
-                'msg' => 'Error al recuperar registros!',
-                'error' => $e->getMessage(),
-                'status' => 500
-            ], 500);
+            // Si ocurre una excepción, se devuelve una respuesta de error 500 con detalles del error.
         }
     }
+
     public function distancia(int $dispositivo_id)
     {
+        // Busca un dispositivo por su ID.
         $dispositivo = Dispositivo::find($dispositivo_id);
 
         if (!$dispositivo) {
+            // Si el dispositivo no se encuentra, devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -192,23 +175,24 @@ class RegistroController extends Controller
         }
 
         try {
-
+            // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
             $response = $this->client->get($this->username . '/feeds/distancia');
 
+            // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
-            //dd($feeds);
-
+            // Filtra y prepara los datos obtenidos.
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
                 'last_value' => $feeds['last_value'] . 'cm',
             ];
 
-            //dd($filteredFeed);
-
+            // Convierte el valor de la distancia en un entero.
             $valor = (int)$filteredFeed['last_value'];
+
+            // Crea un nuevo registro en la base de datos.
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => 'cm',
@@ -217,6 +201,7 @@ class RegistroController extends Controller
             ]);
 
             if (!$registro) {
+                // Si no se puede guardar el registro, devuelve una respuesta de error 500.
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -224,12 +209,14 @@ class RegistroController extends Controller
                 ], 500);
             }
 
+            // Si el registro se guarda con éxito, devuelve una respuesta exitosa con el registro y el código de estado de la respuesta original.
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
         } catch (\Exception $e) {
+            // Si ocurre una excepción, devuelve una respuesta de error 500 con detalles del error.
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -237,6 +224,7 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+
     public function humedad(int $dispositivo_id)
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
@@ -511,261 +499,260 @@ class RegistroController extends Controller
         // ];
     }
 
-    
 
 
 
-public function getRegistrosDistanciaAll()
-{
-    try {
-        $sensorId = 2; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+    public function getRegistrosDistanciaAll()
+    {
+        try {
+            $sensorId = 2; // Cambiar este valor según el sensor que desees consultar
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
+
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-public function getRegistrosTemperaturaAll(){
-    
+    public function getRegistrosTemperaturaAll()
+    {
 
-    try {
-        $sensorId = 1; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+        try {
+            $sensorId = 1; // Cambiar este valor según el sensor que desees consultar
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
+
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-public function getRegistrosHumedadAll(){
+    public function getRegistrosHumedadAll()
+    {
 
-    try {
-        $sensorId = 3; // Cambiar este valor según el sensor que desees consultar
+        try {
+            $sensorId = 3; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-public function getRegistrosPirAll(){
+    public function getRegistrosPirAll()
+    {
 
-    try {
-        $sensorId = 4; // Cambiar este valor según el sensor que desees consultar
+        try {
+            $sensorId = 4; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-public function getRegistrosHumoAll(){
+    public function getRegistrosHumoAll()
+    {
 
-    try {
-        $sensorId = 5; // Cambiar este valor según el sensor que desees consultar
+        try {
+            $sensorId = 5; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-public function getRegistrosAlcoholAll(){
+    public function getRegistrosAlcoholAll()
+    {
 
-    try {
-        $sensorId = 6; // Cambiar este valor según el sensor que desees consultar
+        try {
+            $sensorId = 6; // Cambiar este valor según el sensor que desees consultar
 
-        // Realiza una consulta a la base de datos para obtener registros específicos del sensor
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->get()
-            ->map(function ($registro) {
-                // Transforma cada registro en un formato deseado
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
-                    'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
-                ];
-            });
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->get()
+                ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)), // Obtiene la fecha en formato 'YYYY-MM-DD'
+                        'hora' => date('H:i:s', strtotime($registro->created_at)), // Obtiene la hora en formato 'HH:MM:SS'
+                    ];
+                });
 
-        // Devuelve una respuesta JSON con los registros formateados
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            // Devuelve una respuesta JSON con los registros formateados
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
 
-public function getRegistrosPorRangoDeFechas(Request $request)
-{
-    try {
-        $sensorId = $request->input('sensor_id');
-        $fechaInicial = $request->input('fecha_inicial');
-        $fechaFinal = $request->input('fecha_final');
+    public function getRegistrosPorRangoDeFechas(Request $request)
+    {
+        try {
+            $sensorId = $request->input('sensor_id');
+            $fechaInicial = $request->input('fecha_inicial');
+            $fechaFinal = $request->input('fecha_final');
 
-        $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
-            ->where('sensor_id', $sensorId)
-            ->whereDate('created_at', '>=', $fechaInicial)
-            ->whereDate('created_at', '<=', $fechaFinal)
-            ->get()
-            ->map(function ($registro) {
-                return [
-                    'id' => $registro->id,
-                    'valor' => $registro->valor,
-                    'unidades' => $registro->unidades,
-                    'fecha' => date('Y-m-d', strtotime($registro->created_at)),
-                    'hora' => date('H:i:s', strtotime($registro->created_at)),
-                ];
-            });
+            $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
+                ->where('sensor_id', $sensorId)
+                ->whereDate('created_at', '>=', $fechaInicial)
+                ->whereDate('created_at', '<=', $fechaFinal)
+                ->get()
+                ->map(function ($registro) {
+                    return [
+                        'id' => $registro->id,
+                        'valor' => $registro->valor,
+                        'unidades' => $registro->unidades,
+                        'fecha' => date('Y-m-d', strtotime($registro->created_at)),
+                        'hora' => date('H:i:s', strtotime($registro->created_at)),
+                    ];
+                });
 
-        return response()->json([
-            'msg' => 'Registros recuperados con éxito!',
-            'data' => $registros,
-            'status' => 200
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'msg' => 'Error al recuperar registros!',
-            'error' => $e->getMessage(),
-            'status' => 500
-        ], 500);
+            return response()->json([
+                'msg' => 'Registros recuperados con éxito!',
+                'data' => $registros,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
-}
-
-
-
-
-
-    
 }
