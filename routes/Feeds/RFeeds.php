@@ -1,14 +1,13 @@
 <?php
 
 use App\Http\Controllers\RegistroController;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')
     ->prefix('feeds')
     ->group(function () {
 
-        Route::get('', [RegistroController::class, 'index']);
+        Route::get('{dispositivoID}', [RegistroController::class, 'index']);
 
         Route::get('/temperatura/{dispositivoID}', [RegistroController::class, 'temperatura'])
             ->where('dispositivoID', '[0-9]+');
@@ -30,15 +29,7 @@ Route::middleware('auth:sanctum')
 
         Route::get('/ada', [RegistroController::class, 'ada']);
 
-
-        /* Route::get('/humedad', [RegistroController::class, 'humedadAll']);
-        Route::get('/temperatura', [RegistroController::class, 'temperaturaAll']);
-        Route::get('/distancia', [RegistroController::class, 'distanciaAll']);
-        Route::get('/humo', [RegistroController::class, 'humoAll']);
-        Route::get('/pir', [RegistroController::class, 'pirAll']);
-        Route::get('/alcohol', [RegistroController::class, 'alcoholAll']); */
-
-        //query
+        //query all
         Route::get('/distancia', [RegistroController::class, 'getRegistrosDistanciaAll']);
         Route::get('/temperatura', [RegistroController::class, 'getRegistrosTemperaturaAll']);
         Route::get('/humedad', [RegistroController::class, 'getRegistrosHumedadAll']);
@@ -46,10 +37,6 @@ Route::middleware('auth:sanctum')
         Route::get('/humo', [RegistroController::class, 'getRegistrosHumoAll']);
         Route::get('/alcohol', [RegistroController::class, 'getRegistrosAlcoholAll']);
 
-
-        Route::get('/filtro', [RegistroController::class,'getRegistrosPorRangoDeFechas']);
-
-       //Route::get('/filtro/{sensor_id}/{fecha_inicial}/{fecha_final}', [RegistroController::class, 'getRegistrosPorRangoDeFechas']);
-
-
+        //filtro
+        Route::get('/filtro', [RegistroController::class, 'getRegistrosPorRangoDeFechas']);
     });

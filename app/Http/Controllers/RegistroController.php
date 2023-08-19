@@ -31,30 +31,37 @@ class RegistroController extends Controller
     }
 
     public function index(int $dispositivo_id = null)
-    {
-        if ($dispositivo_id == null) {
-            return response()->json([
-                'msg' => 'Dispositivo no enviado!',
-                'status' => 404
-            ], 404);
-        }
-
-        $temp = $this->temperatura($dispositivo_id);
-        $dist = $this->distancia($dispositivo_id);
-        $hume = $this->humedad($dispositivo_id);
-        $pir = $this->pir($dispositivo_id);
-        $alcohol = $this->alcohol($dispositivo_id);
-        $humo = $this->humo($dispositivo_id);
-        $result = [
-            'temperatura' => $temp,
-            'distancia' => $dist,
-            'humedad' => $hume,
-            'pir' => $pir,
-            'alcohol' => $alcohol,
-            'humo' => $humo
-        ];
-        return $result;
+{
+    // Verifica si no se proporcionó un dispositivo_id
+    if ($dispositivo_id == null) {
+        return response()->json([
+            'msg' => 'Dispositivo no enviado!',
+            'status' => 404
+        ], 404); // Devuelve una respuesta JSON con mensaje de error y código de estado 404
     }
+
+    // Llama a los métodos para obtener registros de diferentes sensores
+    $temp = $this->temperatura($dispositivo_id);
+    $dist = $this->distancia($dispositivo_id);
+    $hume = $this->humedad($dispositivo_id);
+    $pir = $this->pir($dispositivo_id);
+    $alcohol = $this->alcohol($dispositivo_id);
+    $humo = $this->humo($dispositivo_id);
+
+    // Agrupa los resultados de los registros en un arreglo asociativo
+    $result = [
+        'temperatura' => $temp,
+        'distancia' => $dist,
+        'humedad' => $hume,
+        'pir' => $pir,
+        'alcohol' => $alcohol,
+        'humo' => $humo
+    ];
+
+    // Devuelve una respuesta JSON con los resultados de los registros
+    return $result;
+}
+
     public function temperatura(int $dispositivo_id)
     {
         // Se busca un dispositivo por su ID.
@@ -101,6 +108,11 @@ class RegistroController extends Controller
             ], $response->getStatusCode());
         } catch (\Exception $e) {
             // Si ocurre una excepción, se devuelve una respuesta de error 500 con detalles del error.
+            return response()->json([
+                'msg' => 'Error al recuperar registros!',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -367,61 +379,7 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    private function dispositivo()
-    {
-        try {
-
-            $response = $this->client->get($this->username . '/feeds/id');
-
-            $data = $response->getBody()->getContents();
-            $feeds = json_decode($data, true);
-
-            //dd($feeds);
-
-            $filteredFeed = [
-                'username' => $feeds['username'],
-                'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'],
-            ];
-
-            $valor = (int)$filteredFeed['last_value'];
-            return $valor;
-        } catch (\Exception $e) {
-            return response()->json([
-                'msg' => 'Error al recuperar registros!',
-                'error' => $e->getMessage(),
-                'status' => 500
-            ], 500);
-        }
-    }
-
-    public function dataLoop()
-    {
-        while (true) {
-            $dispositivo_id = $this->dispositivo();
-            $temp = $this->temperatura($dispositivo_id);
-            $dist = $this->distancia($dispositivo_id);
-            $hume = $this->humedad($dispositivo_id);
-            $pir = $this->pir($dispositivo_id);
-            $alcohol = $this->alcohol($dispositivo_id);
-            $humo = $this->humo($dispositivo_id);
-
-            sleep(15);
-        }
-
-        // $result = [
-        //     'temperatura' => $temp,
-        //     'distancia' => $dist,
-        //     'humedad' => $hume,
-        //     'pir' => $pir,
-        //     'alcohol' => $alcohol,
-        //     'humo' => $humo
-        // ];
-    }
-
-
-
-
+   
 
     public function getRegistrosDistanciaAll()
     {
@@ -431,6 +389,7 @@ class RegistroController extends Controller
             // Realiza una consulta a la base de datos para obtener registros específicos del sensor
             $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
                 ->where('sensor_id', $sensorId)
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($registro) {
                     // Transforma cada registro en un formato deseado
@@ -468,6 +427,7 @@ class RegistroController extends Controller
             // Realiza una consulta a la base de datos para obtener registros específicos del sensor
             $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
                 ->where('sensor_id', $sensorId)
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($registro) {
                     // Transforma cada registro en un formato deseado
