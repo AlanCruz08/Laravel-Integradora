@@ -37,7 +37,7 @@ class loginController extends Controller
         'email'         => 'required | email',
         'password'      => 'required|string|max:60',
         'codigo'        => 'required | numeric',
-        
+
     ];
 
     public function login(Request $request)
@@ -129,7 +129,6 @@ class loginController extends Controller
     {
         $accessToken = $request->bearerToken();
 
-
         if (!$accessToken) {
             return response()->json([
                 'msg' => 'Token no enviado',
@@ -138,41 +137,35 @@ class loginController extends Controller
             ], 404);
         }
 
+        $id = $request->id;
         $token = PersonalAccessToken::findToken($accessToken);
-        $user = $token->tokenable;
-        $id = $user->id;
 
         if (!$token || $token->revoked) {
             return response()->json([
-                'msg' => 'Token no encontrado o revocado',
-                'data' => [false],
+                'msg' => 'token no encontrado o revocado',
+                'data' => false,
                 'status' => 401
             ], 401);
         }
 
-        // Obtener el token almacenado en el Local Storage del cliente
-        $token_local = $request->bearerToken();
-        $tokens_base_datos = $user->tokens;
-        // return response()->json(['tokens' => $tokens_base_datos]);
+        $consu = DB::table('personal_access_tokens')
+            ->where('tokenable_id', $id)
+            ->where('token', $token)
+            ->first();
 
-        foreach ($tokens_base_datos as $token) {
-            if ($token->token == $token_local) {
-                return response()->json([
-                    'msg' => 'El token pertenece al usuario'
-                ], 200);
-            }
-        }
+        if (!$consu)
+            response()->json([
+                'msg' => 'El token no es valido',
+                'data' => false,
+                'status' => 422
+            ], 422);
 
         return response()->json([
-            'msg' => 'Token válido',
+            'msg' => 'Token valido',
             'data' => true,
             'status' => 200
         ], 200);
     }
-
-
-   
-    
 
     public function enviarCorreo(string $email)
     {

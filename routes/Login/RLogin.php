@@ -10,7 +10,3 @@ Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth:san
 Route::get('/validate', [LoginController::class, 'validar']);
 Route::post('/correo', [LoginController::class, 'enviarCorreo']);
 Route::post('/verificar', [LoginController::class, 'verificacion']);
-
-
-
-
