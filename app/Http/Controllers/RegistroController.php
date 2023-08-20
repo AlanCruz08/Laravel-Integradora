@@ -30,7 +30,7 @@ class RegistroController extends Controller
         ]);
     }
 
-    public function index(int $dispositivo_id = null)
+/*     public function index(int $dispositivo_id = null)
 {
     // Verifica si no se proporcionó un dispositivo_id
     if ($dispositivo_id == null) {
@@ -61,7 +61,7 @@ class RegistroController extends Controller
     // Devuelve una respuesta JSON con los resultados de los registros
     return $result;
 }
-
+ */
     public function temperatura(int $dispositivo_id)
     {
         // Se busca un dispositivo por su ID.
@@ -75,7 +75,7 @@ class RegistroController extends Controller
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/temperature');
+            $response = $this->client->get($this->username . '/feeds/tempvalue');
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
@@ -130,7 +130,7 @@ class RegistroController extends Controller
 
         try {
             // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
-            $response = $this->client->get($this->username . '/feeds/distancia');
+            $response = $this->client->get($this->username . '/feeds/distvalue');
 
             // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
@@ -190,7 +190,7 @@ class RegistroController extends Controller
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/humedad');
+            $response = $this->client->get($this->username . '/feeds/humidityvalue');
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
@@ -419,8 +419,6 @@ class RegistroController extends Controller
     }
     public function getRegistrosTemperaturaAll()
     {
-
-
         try {
             $sensorId = 1; // Cambiar este valor según el sensor que desees consultar
 
