@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Dispositivo;
 use App\Models\User;
+use Carbon\Carbon;
 
 class RegistroController extends Controller
 {
@@ -62,12 +63,16 @@ class RegistroController extends Controller
     return $result;
 }
  */
-    public function temperatura(int $dispositivo_id)
+
+
+
+
+public function temperatura (int $dispositivo_id)
     {
-        // Se busca un dispositivo por su ID.
+        // Busca un dispositivo por su ID.
         $dispositivo = Dispositivo::find($dispositivo_id);
         if (!$dispositivo) {
-            // Si el dispositivo no se encuentra, se devuelve una respuesta de error 404.
+            // Si el dispositivo no se encuentra, devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -75,17 +80,24 @@ class RegistroController extends Controller
         }
 
         try {
+            // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
             $response = $this->client->get($this->username . '/feeds/tempvalue');
+
+            // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
+            // Filtra y prepara los datos obtenidos.
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
                 'last_value' => $feeds['last_value'],
             ];
 
+            // Convierte el valor de la distancia en un entero.
             $valor = (int)$filteredFeed['last_value'];
+
+            // Crea un nuevo registro en la base de datos.
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => '°C',
@@ -94,6 +106,7 @@ class RegistroController extends Controller
             ]);
 
             if (!$registro) {
+                // Si no se puede guardar el registro, devuelve una respuesta de error 500.
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -101,13 +114,14 @@ class RegistroController extends Controller
                 ], 500);
             }
 
+            // Si el registro se guarda con éxito, devuelve una respuesta exitosa con el registro y el código de estado de la respuesta original.
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
         } catch (\Exception $e) {
-            // Si ocurre una excepción, se devuelve una respuesta de error 500 con detalles del error.
+            // Si ocurre una excepción, devuelve una respuesta de error 500 con detalles del error.
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -115,6 +129,7 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+
 
     public function distancia(int $dispositivo_id)
     {
@@ -140,7 +155,7 @@ class RegistroController extends Controller
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'] . 'cm',
+                'last_value' => $feeds['last_value'],
             ];
 
             // Convierte el valor de la distancia en un entero.
