@@ -6,7 +6,7 @@ use App\Models\Registro;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Dispositivo;
-use App\Models\User;
+
 
 class RegistroController extends Controller
 {
@@ -30,35 +30,12 @@ class RegistroController extends Controller
         ]);
     }
 
-    public function index(int $dispositivo_id = null)
+public function temperatura (int $dispositivo_id)
     {
-        if ($dispositivo_id == null) {
-            return response()->json([
-                'msg' => 'Dispositivo no enviado!',
-                'status' => 404
-            ], 404);
-        }
-
-        $temp = $this->temperatura($dispositivo_id);
-        $dist = $this->distancia($dispositivo_id);
-        $hume = $this->humedad($dispositivo_id);
-        $pir = $this->pir($dispositivo_id);
-        $alcohol = $this->alcohol($dispositivo_id);
-        $humo = $this->humo($dispositivo_id);
-        $result = [
-            'temperatura' => $temp,
-            'distancia' => $dist,
-            'humedad' => $hume,
-            'pir' => $pir,
-            'alcohol' => $alcohol,
-            'humo' => $humo
-        ];
-        return $result;
-    }
-    public function temperatura(int $dispositivo_id)
-    {
+        // Busca un dispositivo por su ID.
         $dispositivo = Dispositivo::find($dispositivo_id);
         if (!$dispositivo) {
+            // Si el dispositivo no se encuentra, devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -66,17 +43,24 @@ class RegistroController extends Controller
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/temperature');
+            // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
+            $response = $this->client->get($this->username . '/feeds/tempvalue');
+
+            // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
+            // Filtra y prepara los datos obtenidos.
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
                 'last_value' => $feeds['last_value'],
             ];
 
+            // Convierte el valor de la distancia en un entero.
             $valor = (int)$filteredFeed['last_value'];
+
+            // Crea un nuevo registro en la base de datos.
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => '°C',
@@ -85,6 +69,7 @@ class RegistroController extends Controller
             ]);
 
             if (!$registro) {
+                // Si no se puede guardar el registro, devuelve una respuesta de error 500.
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -92,12 +77,14 @@ class RegistroController extends Controller
                 ], 500);
             }
 
+            // Si el registro se guarda con éxito, devuelve una respuesta exitosa con el registro y el código de estado de la respuesta original.
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
         } catch (\Exception $e) {
+            // Si ocurre una excepción, devuelve una respuesta de error 500 con detalles del error.
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -105,10 +92,14 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+
+
     public function distancia(int $dispositivo_id)
     {
+        // Busca un dispositivo por su ID.
         $dispositivo = Dispositivo::find($dispositivo_id);
         if (!$dispositivo) {
+            // Si el dispositivo no se encuentra, devuelve una respuesta de error 404.
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
                 'status' => 404
@@ -116,17 +107,24 @@ class RegistroController extends Controller
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/distancia');
+            // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
+            $response = $this->client->get($this->username . '/feeds/distvalue');
+
+            // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
+            // Filtra y prepara los datos obtenidos.
             $filteredFeed = [
                 'username' => $feeds['username'],
                 'name' => $feeds['name'],
-                'last_value' => $feeds['last_value'] . 'cm',
+                'last_value' => $feeds['last_value'],
             ];
 
+            // Convierte el valor de la distancia en un entero.
             $valor = (int)$filteredFeed['last_value'];
+
+            // Crea un nuevo registro en la base de datos.
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => 'cm',
@@ -135,6 +133,7 @@ class RegistroController extends Controller
             ]);
 
             if (!$registro) {
+                // Si no se puede guardar el registro, devuelve una respuesta de error 500.
                 return response()->json([
                     'msg' => 'Error al guardar registro!',
                     'data' => $registro,
@@ -142,12 +141,14 @@ class RegistroController extends Controller
                 ], 500);
             }
 
+            // Si el registro se guarda con éxito, devuelve una respuesta exitosa con el registro y el código de estado de la respuesta original.
             return response()->json([
                 'msg' => 'Registros recuperados con exito!',
                 'data' => $registro,
                 'status' => 200
             ], $response->getStatusCode());
         } catch (\Exception $e) {
+            // Si ocurre una excepción, devuelve una respuesta de error 500 con detalles del error.
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -155,6 +156,7 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+
     public function humedad(int $dispositivo_id)
     {
         $dispositivo = Dispositivo::find($dispositivo_id);
@@ -166,7 +168,7 @@ class RegistroController extends Controller
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/humedad');
+            $response = $this->client->get($this->username . '/feeds/humidityvalue');
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
@@ -355,16 +357,20 @@ class RegistroController extends Controller
             ], 500);
         }
     }
+   
 
-    public function getRegistrosTemperaturaAll()
+    public function getRegistrosDistanciaAll()
     {
         try {
-            $sensorId = 1;
+            $sensorId = 2; // Cambiar este valor según el sensor que desees consultar
+
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
             $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
                 ->where('sensor_id', $sensorId)
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
                     return [
                         'id' => $registro->id,
                         'valor' => $registro->valor,
@@ -374,12 +380,14 @@ class RegistroController extends Controller
                     ];
                 });
 
+            // Devuelve una respuesta JSON con los registros formateados
             return response()->json([
                 'msg' => 'Registros recuperados con éxito!',
                 'data' => $registros,
                 'status' => 200
             ]);
         } catch (\Exception $e) {
+            // En caso de error, devuelve una respuesta JSON con un mensaje de error y el código de estado 500
             return response()->json([
                 'msg' => 'Error al recuperar registros!',
                 'error' => $e->getMessage(),
@@ -387,15 +395,18 @@ class RegistroController extends Controller
             ], 500);
         }
     }
-    public function getRegistrosDistanciaAll()
+    public function getRegistrosTemperaturaAll()
     {
         try {
-            $sensorId = 2;
+            $sensorId = 1; // Cambiar este valor según el sensor que desees consultar
+
+            // Realiza una consulta a la base de datos para obtener registros específicos del sensor
             $registros = Registro::select('id', 'valor', 'unidades', 'created_at')
                 ->where('sensor_id', $sensorId)
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($registro) {
+                    // Transforma cada registro en un formato deseado
                     return [
                         'id' => $registro->id,
                         'valor' => $registro->valor,
