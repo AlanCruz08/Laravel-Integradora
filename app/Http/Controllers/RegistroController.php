@@ -6,8 +6,7 @@ use App\Models\Registro;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Models\Dispositivo;
-use App\Models\User;
-use Carbon\Carbon;
+
 
 class RegistroController extends Controller
 {
@@ -30,42 +29,6 @@ class RegistroController extends Controller
             'verify' => false,
         ]);
     }
-
-/*     public function index(int $dispositivo_id = null)
-{
-    // Verifica si no se proporcionó un dispositivo_id
-    if ($dispositivo_id == null) {
-        return response()->json([
-            'msg' => 'Dispositivo no enviado!',
-            'status' => 404
-        ], 404); // Devuelve una respuesta JSON con mensaje de error y código de estado 404
-    }
-
-    // Llama a los métodos para obtener registros de diferentes sensores
-    $temp = $this->temperatura($dispositivo_id);
-    $dist = $this->distancia($dispositivo_id);
-    $hume = $this->humedad($dispositivo_id);
-    $pir = $this->pir($dispositivo_id);
-    $alcohol = $this->alcohol($dispositivo_id);
-    $humo = $this->humo($dispositivo_id);
-
-    // Agrupa los resultados de los registros en un arreglo asociativo
-    $result = [
-        'temperatura' => $temp,
-        'distancia' => $dist,
-        'humedad' => $hume,
-        'pir' => $pir,
-        'alcohol' => $alcohol,
-        'humo' => $humo
-    ];
-
-    // Devuelve una respuesta JSON con los resultados de los registros
-    return $result;
-}
- */
-
-
-
 
 public function temperatura (int $dispositivo_id)
     {
