@@ -291,9 +291,10 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
+            $valorN = ($valor === 1) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => 'ppm',
+                'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
                 'sensor_id' => 5,
                 'dispositivo_id' => $dispositivo_id
             ]);
@@ -341,9 +342,10 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
+            $valorN = ($valor === 1) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => 'grados',
+                'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
                 'sensor_id' => 6,
                 'dispositivo_id' => $dispositivo_id
             ]);
