@@ -44,7 +44,7 @@ public function temperatura (int $dispositivo_id)
 
         try {
             // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
-            $response = $this->client->get($this->username . '/feeds/temperatura');
+            $response = $this->client->get($this->username . '/feeds/tempvalue');
 
             // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
@@ -108,7 +108,7 @@ public function temperatura (int $dispositivo_id)
 
         try {
             // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
-            $response = $this->client->get($this->username . '/feeds/distancia');
+            $response = $this->client->get($this->username . '/feeds/distvalue');
 
             // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
@@ -168,7 +168,7 @@ public function temperatura (int $dispositivo_id)
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/humedad');
+            $response = $this->client->get($this->username . '/feeds/humidityvalue');
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
@@ -291,10 +291,10 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
-            $valorN = ($valor === 1) ? 0 : 1;
+            $valorN = ($valor === 500) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
+                'unidades' => $valorN ? ' Detectado' : 'Sin Detectar', // Cambiado OFF y ON
                 'sensor_id' => 5,
                 'dispositivo_id' => $dispositivo_id
             ]);
@@ -342,7 +342,7 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
-            $valorN = ($valor === 1) ? 0 : 1;
+            $valorN = ($valor === 200) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
                 'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
