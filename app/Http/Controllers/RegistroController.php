@@ -44,7 +44,7 @@ public function temperatura (int $dispositivo_id)
 
         try {
             // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
-            $response = $this->client->get($this->username . '/feeds/tempvalue');
+            $response = $this->client->get($this->username . '/feeds/temperatura');
 
             // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
@@ -108,7 +108,7 @@ public function temperatura (int $dispositivo_id)
 
         try {
             // Realiza una solicitud GET a un recurso específico ('/feeds/distancia') utilizando un cliente.
-            $response = $this->client->get($this->username . '/feeds/distvalue');
+            $response = $this->client->get($this->username . '/feeds/distancia');
 
             // Obtiene el contenido de la respuesta y lo decodifica como JSON.
             $data = $response->getBody()->getContents();
@@ -168,7 +168,7 @@ public function temperatura (int $dispositivo_id)
         }
 
         try {
-            $response = $this->client->get($this->username . '/feeds/humidityvalue');
+            $response = $this->client->get($this->username . '/feeds/humedad');
             $data = $response->getBody()->getContents();
             $feeds = json_decode($data, true);
 
@@ -209,7 +209,7 @@ public function temperatura (int $dispositivo_id)
     }
     public function pir(int $dispositivo_id)
     {
-        $dispositivo = Dispositivo::find($dispositivo_id);
+       $dispositivo = Dispositivo::find($dispositivo_id);
         if (!$dispositivo) {
             return response()->json([
                 'msg' => 'Dispositivo no encontrado!',
@@ -227,14 +227,25 @@ public function temperatura (int $dispositivo_id)
                 'name' => $feeds['name'],
                 'last_value' => $feeds['last_value'],
             ];
+         /*   $valorTexto = $filteredFeed['last_value'];
+        $valorNumerico = ($valorTexto === 'ON') ? 1 : 0;
 
-            $valor = (int)$filteredFeed['last_value'];
-            $registro = Registro::create([
-                'valor' => $valor,
-                'unidades' => 'ON/OFF',
-                'sensor_id' => 4,
-                'dispositivo_id' => $dispositivo_id
-            ]);
+        $registro = Registro::create([
+            'valor' => $valorNumerico,
+            'unidades' => $valorNumerico ? 'ON' : 'OFF',
+            'sensor_id' => 4,
+            'dispositivo_id' => $dispositivo_id
+        ]);*/
+
+
+        $valor = (int)$filteredFeed['last_value'];
+        $valorN = ($valor === 1) ? 0 : 1;
+        $registro = Registro::create([
+            'valor' => $valor,
+            'unidades' => $valorN ? 'OFF' : 'ON', // Cambiado OFF y ON
+            'sensor_id' => 4,
+            'dispositivo_id' => $dispositivo_id
+        ]);
 
             if (!$registro) {
                 return response()->json([
@@ -256,6 +267,7 @@ public function temperatura (int $dispositivo_id)
                 'status' => 500
             ], 500);
         }
+      
     }
     public function humo(int $dispositivo_id)
     {
@@ -279,9 +291,10 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
+            $valorN = ($valor === 1) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => 'ppm',
+                'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
                 'sensor_id' => 5,
                 'dispositivo_id' => $dispositivo_id
             ]);
@@ -329,9 +342,10 @@ public function temperatura (int $dispositivo_id)
             ];
 
             $valor = (int)$filteredFeed['last_value'];
+            $valorN = ($valor === 1) ? 0 : 1;
             $registro = Registro::create([
                 'valor' => $valor,
-                'unidades' => 'grados',
+                'unidades' => $valorN ? 'Sin Detectar' : 'Detectado', // Cambiado OFF y ON
                 'sensor_id' => 6,
                 'dispositivo_id' => $dispositivo_id
             ]);
